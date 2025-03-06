@@ -3,17 +3,32 @@ import { useParams, Link, NavLink, Outlet } from "react-router-dom";
 import { getVan } from "../../api";
 
 export default function HostVanDetail() {
+  // checking if there vans in the local storage, this will help us to reduce calls to the database
+  const savedVans = localStorage.getItem("vans")
+    ? JSON.parse(localStorage.getItem("vans"))
+    : [];
+
   const [currentVan, setCurrentVan] = React.useState(null);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState(null);
   const { id } = useParams();
 
+  function getVanFromStorage(id) {
+    return savedVans.filter((van) => van.id === id)[0];
+  }
+
   React.useEffect(() => {
     async function loadVans() {
       setLoading(true);
       try {
-        const data = await getVan(id);
-        setCurrentVan(data);
+        // if there is no vans in the localstorage then make a call to the database
+        if (savedVans.length === 0) {
+          const data = await getVan(id);
+          setCurrentVan(data);
+        } else {
+          const data = getVanFromStorage(id);
+          setCurrentVan(data);
+        }
       } catch (err) {
         setError(err);
       } finally {

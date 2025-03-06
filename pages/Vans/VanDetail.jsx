@@ -1,19 +1,27 @@
 import React from "react";
 import { Link, useParams, useLocation } from "react-router-dom";
-import { getVan } from "../../api";
+// import { getVan } from "../../api";
 
 export default function VanDetail() {
+  // getting the vans from local storage
+  const vans = JSON.parse(localStorage.getItem("vans"));
+
   const [van, setVan] = React.useState(null);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState(null);
   const { id } = useParams();
   const location = useLocation();
 
+  function getVanFromStorage(id) {
+    const van = vans.filter((van) => van.id === id)[0];
+    return van;
+  }
+
   React.useEffect(() => {
     async function loadVans() {
       setLoading(true);
       try {
-        const data = await getVan(id);
+        const data = getVanFromStorage(id);
         setVan(data);
       } catch (err) {
         setError(err);
